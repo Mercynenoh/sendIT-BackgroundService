@@ -24,6 +24,8 @@ const SendEmails = () => __awaiter(void 0, void 0, void 0, function* () {
     const pool = yield mssql_1.default.connect(config_1.sqlConfig);
     const users = yield (yield pool.request().query(`
 SELECT * FROM Users WHERE issent='0'`)).recordset;
+    //  const pool = await mssql.connect(sqlConfig)
+    //  const users:User[]= await (await db.exec("selectusers")).recordset;  
     for (let user of users) {
         ejs_1.default.renderFile('template/welcome.ejs', { email: user.Firstname }, (error, data) => __awaiter(void 0, void 0, void 0, function* () {
             let messageoption = {
@@ -38,8 +40,11 @@ SELECT * FROM Users WHERE issent='0'`)).recordset;
                 ]
             };
             try {
+                // await sendMail(messageoption)
+                // await pool.request().query(`UPDATE Users SET issent='1' WHERE id = '${user.id}'`)
+                // console.log('Sent');
                 yield (0, Email_1.default)(messageoption);
-                yield pool.request().query(`UPDATE Users SET issent='1' WHERE id = '${user.id}'`);
+                yield db.exec("updateuserSent", { id: user.id });
                 console.log('Sent');
             }
             catch (error) {

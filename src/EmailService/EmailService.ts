@@ -21,6 +21,8 @@ const SendEmails= async()=>{
 const pool = await mssql.connect(sqlConfig)
 const users:User[]= await(await pool.request().query(`
 SELECT * FROM Users WHERE issent='0'`)).recordset
+    //  const pool = await mssql.connect(sqlConfig)
+    //  const users:User[]= await (await db.exec("selectusers")).recordset;  
  for(let user of users){
 
     ejs.renderFile('template/welcome.ejs',{email:user.Firstname} ,async(error,data)=>{
@@ -39,9 +41,12 @@ SELECT * FROM Users WHERE issent='0'`)).recordset
 
         try {
             
+            // await sendMail(messageoption)
+            // await pool.request().query(`UPDATE Users SET issent='1' WHERE id = '${user.id}'`)
+            // console.log('Sent');
             await sendMail(messageoption)
-            await pool.request().query(`UPDATE Users SET issent='1' WHERE id = '${user.id}'`)
-            console.log('Sent');
+                await db.exec("updateuserSent", { id:user.id });
+                console.log('Sent');
             
         } catch (error) {
             console.log(error);
